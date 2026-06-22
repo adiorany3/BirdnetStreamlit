@@ -1,1 +1,1 @@
-Template Streamlit + BirdNET. Letakkan model dan sesuaikan API BirdNET sesuai versi package yang digunakan.
+Demo : https://birdnetapp.streamlit.app/
