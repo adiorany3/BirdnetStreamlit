@@ -1,5 +1,6 @@
-streamlit
-pandas
+streamlit>=1.46.0
+pandas>=2.2.0
 numpy<2
-librosa
-soundfile
+soundfile>=0.13.0
+librosa>=0.11.0
+birdnetlib>=0.18.0
