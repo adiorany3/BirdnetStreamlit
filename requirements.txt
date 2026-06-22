@@ -1,6 +1,4 @@
 streamlit
 pandas
 numpy
-librosa
-soundfile
-tflite-runtime
+birdnet
