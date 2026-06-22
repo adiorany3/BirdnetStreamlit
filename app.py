@@ -6,31 +6,110 @@ import os
 from birdnetlib import Recording
 from birdnetlib.analyzer import Analyzer
 
+# ==========================================
+# PAGE CONFIG
+# ==========================================
+
 st.set_page_config(
     page_title="BirdNET Analyzer",
     page_icon="🐦",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
+
+# ==========================================
+# HIDE STREAMLIT ELEMENTS
+# ==========================================
+
+st.markdown("""
+<style>
+
+/* Hide Streamlit menu */
+#MainMenu {
+    visibility: hidden;
+}
+
+/* Hide default footer */
+footer {
+    visibility: hidden;
+}
+
+/* Hide header */
+header {
+    visibility: hidden;
+}
+
+/* Hide toolbar */
+[data-testid="stToolbar"] {
+    display: none;
+}
+
+/* Hide decoration */
+[data-testid="stDecoration"] {
+    display: none;
+}
+
+/* Hide status widget */
+[data-testid="stStatusWidget"] {
+    display: none;
+}
+
+/* Reduce top spacing */
+.block-container {
+    padding-top: 1rem;
+    padding-bottom: 4rem;
+}
+
+/* Custom footer */
+.custom-footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    background-color: white;
+    border-top: 1px solid #e5e5e5;
+    font-size: 13px;
+    z-index: 9999;
+}
+
+</style>
+
+<div class="custom-footer">
+    © 2026 BirdNET Analyzer | Developed by Galuh Adi Insani
+</div>
+""", unsafe_allow_html=True)
+
+# ==========================================
+# TITLE
+# ==========================================
 
 st.title("🐦 BirdNET Bird Sound Analyzer")
 
-st.markdown(
-    """
-    Upload file audio burung dan sistem akan mencoba
-    mengidentifikasi spesies menggunakan BirdNET.
-    """
-)
+st.markdown("""
+Upload file audio burung dan sistem akan mencoba
+mengidentifikasi spesies menggunakan BirdNET AI.
+""")
+
+# ==========================================
+# FILE UPLOAD
+# ==========================================
 
 uploaded_file = st.file_uploader(
     "Upload Audio",
     type=["wav", "mp3", "flac", "ogg"]
 )
 
+# ==========================================
+# PROCESS
+# ==========================================
+
 if uploaded_file:
 
     st.audio(uploaded_file)
 
-    if st.button("Analisis Burung"):
+    if st.button("🔍 Analisis Burung"):
 
         with tempfile.NamedTemporaryFile(
             delete=False,
@@ -58,10 +137,14 @@ if uploaded_file:
 
                 detections = recording.detections
 
+            # ==================================
+            # RESULT
+            # ==================================
+
             if len(detections) == 0:
 
                 st.warning(
-                    "Tidak ditemukan spesies burung."
+                    "Tidak ada spesies burung yang terdeteksi."
                 )
 
             else:
@@ -72,28 +155,38 @@ if uploaded_file:
                     f"{len(df)} deteksi ditemukan"
                 )
 
+                st.subheader("📋 Hasil Deteksi")
+
                 st.dataframe(
                     df,
                     use_container_width=True
                 )
 
-                st.subheader("Top Hasil")
+                # Confidence chart
 
                 if "confidence" in df.columns:
 
+                    st.subheader("📈 Confidence")
+
+                    chart_df = df.copy()
+
+                    species_col = df.columns[0]
+
                     st.bar_chart(
-                        df.set_index(
-                            df.columns[0]
+                        chart_df.set_index(
+                            species_col
                         )["confidence"]
                     )
+
+                # CSV download
 
                 csv = df.to_csv(
                     index=False
                 ).encode("utf-8")
 
                 st.download_button(
-                    "Download CSV",
-                    csv,
+                    label="⬇ Download CSV",
+                    data=csv,
                     file_name="birdnet_results.csv",
                     mime="text/csv"
                 )
