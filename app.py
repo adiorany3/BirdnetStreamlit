@@ -19,88 +19,57 @@ st.set_page_config(
 )
 
 # ==================================================
-# CUSTOM CSS
+# HIDE STREAMLIT UI
 # ==================================================
 
-year = datetime.now().year
+st.markdown("""
+<style>
 
-st.markdown(
-    f"""
-    <style>
+#MainMenu {
+    visibility: hidden;
+}
 
-    #MainMenu {{
-        visibility: hidden;
-    }}
+footer {
+    visibility: hidden;
+}
 
-    footer {{
-        visibility: hidden;
-    }}
+header {
+    visibility: hidden;
+}
 
-    header {{
-        visibility: hidden;
-    }}
+[data-testid="stToolbar"] {
+    display: none;
+}
 
-    [data-testid="stToolbar"] {{
-        display: none;
-    }}
+[data-testid="stDecoration"] {
+    display: none;
+}
 
-    [data-testid="stDecoration"] {{
-        display: none;
-    }}
+[data-testid="stStatusWidget"] {
+    display: none;
+}
 
-    [data-testid="stStatusWidget"] {{
-        display: none;
-    }}
+.block-container {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
 
-    .block-container {{
-        padding-top: 1rem;
-        padding-bottom: 5rem;
-    }}
-
-    .custom-footer {{
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        text-align: center;
-        padding: 10px;
-        background: white;
-        border-top: 1px solid #ddd;
-        font-size: 13px;
-        z-index: 9999;
-    }}
-
-st.divider()
-
-col1, col2, col3 = st.columns([1,2,1])
-
-with col2:
-    st.markdown(
-        f"""
-        <div style='text-align:center'>
-        <b>BirdNET Analyzer</b><br>
-        © {year} Developed by Adi Orany
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-)
+</style>
+""", unsafe_allow_html=True)
 
 # ==================================================
-# TITLE
+# HEADER
 # ==================================================
 
 st.title("🐦 BirdNET Bird Sound Analyzer")
 
-st.markdown(
-    """
-    Upload file audio burung dan sistem akan mencoba
-    mengidentifikasi spesies menggunakan BirdNET AI.
-    """
-)
+st.markdown("""
+Upload file audio burung dan sistem akan mencoba
+mengidentifikasi spesies menggunakan BirdNET AI.
+""")
 
 # ==================================================
-# UPLOAD
+# FILE UPLOAD
 # ==================================================
 
 uploaded_file = st.file_uploader(
@@ -116,11 +85,13 @@ if uploaded_file:
 
     st.audio(uploaded_file)
 
-    if st.button("🔍 Analisis Burung"):
+    if st.button("🔍 Analisis Burung", type="primary"):
+
+        file_ext = uploaded_file.name.split(".")[-1].lower()
 
         with tempfile.NamedTemporaryFile(
             delete=False,
-            suffix=".wav"
+            suffix=f".{file_ext}"
         ) as tmp:
 
             tmp.write(uploaded_file.read())
@@ -128,9 +99,7 @@ if uploaded_file:
 
         try:
 
-            with st.spinner(
-                "Menganalisis suara burung..."
-            ):
+            with st.spinner("Menganalisis suara burung..."):
 
                 analyzer = Analyzer()
 
@@ -170,7 +139,7 @@ if uploaded_file:
                 )
 
                 # ==================================
-                # CHART
+                # CONFIDENCE CHART
                 # ==================================
 
                 if "confidence" in df.columns:
@@ -202,7 +171,7 @@ if uploaded_file:
                         )
 
                 # ==================================
-                # DOWNLOAD CSV
+                # CSV DOWNLOAD
                 # ==================================
 
                 csv = df.to_csv(
@@ -226,3 +195,26 @@ if uploaded_file:
 
             if os.path.exists(audio_path):
                 os.remove(audio_path)
+
+# ==================================================
+# FOOTER
+# ==================================================
+
+year = datetime.now().year
+
+st.divider()
+
+st.markdown(
+    f"""
+    <div style="
+        text-align:center;
+        color:#808080;
+        font-size:14px;
+        padding-top:10px;
+        padding-bottom:10px;
+    ">
+        &copy; {year} BirdNET Analyzer | Developed by Adi Orany
+    </div>
+    """,
+    unsafe_allow_html=True
+)
