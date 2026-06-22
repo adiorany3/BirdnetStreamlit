@@ -1,0 +1,1 @@
+Simpan BirdNET_GLOBAL_6K_V2.4_Model_FP32.tflite di folder ini.
