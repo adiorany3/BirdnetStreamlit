@@ -213,7 +213,7 @@ st.markdown(
         padding-top:10px;
         padding-bottom:10px;
     ">
-        &copy; {year} BirdNET Analyzer | Developed by Adi Orany
+        &copy; {year} BirdNET Analyzer | Developed by Galuh Adi Insani
     </div>
     """,
     unsafe_allow_html=True
