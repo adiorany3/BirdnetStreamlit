@@ -2,13 +2,14 @@ import streamlit as st
 import pandas as pd
 import tempfile
 import os
+from datetime import datetime
 
 from birdnetlib import Recording
 from birdnetlib.analyzer import Analyzer
 
-# ==========================================
+# ==================================================
 # PAGE CONFIG
-# ==========================================
+# ==================================================
 
 st.set_page_config(
     page_title="BirdNET Analyzer",
@@ -17,93 +18,92 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ==========================================
-# HIDE STREAMLIT ELEMENTS
-# ==========================================
+# ==================================================
+# CUSTOM CSS
+# ==================================================
 
-st.markdown("""
-<style>
+year = datetime.now().year
 
-/* Hide Streamlit menu */
-#MainMenu {
-    visibility: hidden;
-}
+st.markdown(
+    f"""
+    <style>
 
-/* Hide default footer */
-footer {
-    visibility: hidden;
-}
+    #MainMenu {{
+        visibility: hidden;
+    }}
 
-/* Hide header */
-header {
-    visibility: hidden;
-}
+    footer {{
+        visibility: hidden;
+    }}
 
-/* Hide toolbar */
-[data-testid="stToolbar"] {
-    display: none;
-}
+    header {{
+        visibility: hidden;
+    }}
 
-/* Hide decoration */
-[data-testid="stDecoration"] {
-    display: none;
-}
+    [data-testid="stToolbar"] {{
+        display: none;
+    }}
 
-/* Hide status widget */
-[data-testid="stStatusWidget"] {
-    display: none;
-}
+    [data-testid="stDecoration"] {{
+        display: none;
+    }}
 
-/* Reduce top spacing */
-.block-container {
-    padding-top: 1rem;
-    padding-bottom: 4rem;
-}
+    [data-testid="stStatusWidget"] {{
+        display: none;
+    }}
 
-/* Custom footer */
-.custom-footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    text-align: center;
-    padding: 10px;
-    background-color: white;
-    border-top: 1px solid #e5e5e5;
-    font-size: 13px;
-    z-index: 9999;
-}
+    .block-container {{
+        padding-top: 1rem;
+        padding-bottom: 5rem;
+    }}
 
-</style>
+    .custom-footer {{
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+        background: white;
+        border-top: 1px solid #ddd;
+        font-size: 13px;
+        z-index: 9999;
+    }}
 
-<div class="custom-footer">
-    © 2026 BirdNET Analyzer | Developed by Galuh Adi Insani
-</div>
-""", unsafe_allow_html=True)
+    </style>
 
-# ==========================================
+    <div class="custom-footer">
+        © {year} BirdNET Analyzer | Developed by Adi Orany
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# ==================================================
 # TITLE
-# ==========================================
+# ==================================================
 
 st.title("🐦 BirdNET Bird Sound Analyzer")
 
-st.markdown("""
-Upload file audio burung dan sistem akan mencoba
-mengidentifikasi spesies menggunakan BirdNET AI.
-""")
+st.markdown(
+    """
+    Upload file audio burung dan sistem akan mencoba
+    mengidentifikasi spesies menggunakan BirdNET AI.
+    """
+)
 
-# ==========================================
-# FILE UPLOAD
-# ==========================================
+# ==================================================
+# UPLOAD
+# ==================================================
 
 uploaded_file = st.file_uploader(
     "Upload Audio",
     type=["wav", "mp3", "flac", "ogg"]
 )
 
-# ==========================================
-# PROCESS
-# ==========================================
+# ==================================================
+# ANALYSIS
+# ==================================================
 
 if uploaded_file:
 
@@ -137,9 +137,9 @@ if uploaded_file:
 
                 detections = recording.detections
 
-            # ==================================
+            # ======================================
             # RESULT
-            # ==================================
+            # ======================================
 
             if len(detections) == 0:
 
@@ -162,23 +162,41 @@ if uploaded_file:
                     use_container_width=True
                 )
 
-                # Confidence chart
+                # ==================================
+                # CHART
+                # ==================================
 
                 if "confidence" in df.columns:
 
                     st.subheader("📈 Confidence")
 
-                    chart_df = df.copy()
+                    if "common_name" in df.columns:
 
-                    species_col = df.columns[0]
+                        chart_df = df[
+                            ["common_name", "confidence"]
+                        ]
 
-                    st.bar_chart(
-                        chart_df.set_index(
-                            species_col
-                        )["confidence"]
-                    )
+                        st.bar_chart(
+                            chart_df.set_index(
+                                "common_name"
+                            )
+                        )
 
-                # CSV download
+                    elif "scientific_name" in df.columns:
+
+                        chart_df = df[
+                            ["scientific_name", "confidence"]
+                        ]
+
+                        st.bar_chart(
+                            chart_df.set_index(
+                                "scientific_name"
+                            )
+                        )
+
+                # ==================================
+                # DOWNLOAD CSV
+                # ==================================
 
                 csv = df.to_csv(
                     index=False
